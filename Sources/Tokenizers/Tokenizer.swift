@@ -194,6 +194,7 @@ enum TokenizerModel {
         "TokenizersBackend": BPETokenizer.self,
         "WhisperTokenizer": BPETokenizer.self,
         "XLMRobertaTokenizer": UnigramTokenizer.self,
+        "Xlm-RobertaTokenizer": UnigramTokenizer.self,
     ]
 
     static func unknownToken(from tokenizerConfig: Config) -> String? {

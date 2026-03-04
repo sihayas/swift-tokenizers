@@ -231,6 +231,31 @@ struct TokenizerTests {
         #expect(ids == expected)
     }
 
+    /// https://github.com/huggingface/swift-transformers/issues/318
+    @Test
+    func kredorPunctuateAllTokenizer() async throws {
+        let modelDirectory = try await downloadModel("kredor/punctuate-all")
+        let tokenizerOpt = try await AutoTokenizer.from(directory: modelDirectory) as? PreTrainedTokenizer
+        #expect(tokenizerOpt != nil)
+        let tokenizer = tokenizerOpt!
+
+        let ids = tokenizer.encode(text: "okay so lets get started")
+        let expected = [0, 68403, 221, 2633, 7, 2046, 26859, 2]
+        #expect(ids == expected)
+    }
+
+    @Test
+    func robertaXLMCanonicalTokenizer() async throws {
+        let modelDirectory = try await downloadModel("FacebookAI/xlm-roberta-base")
+        let tokenizerOpt = try await AutoTokenizer.from(directory: modelDirectory) as? PreTrainedTokenizer
+        #expect(tokenizerOpt != nil)
+        let tokenizer = tokenizerOpt!
+
+        let ids = tokenizer.encode(text: "okay so lets get started")
+        let expected = [0, 68403, 221, 2633, 7, 2046, 26859, 2]
+        #expect(ids == expected)
+    }
+
     @Test
     func nllbTokenizer() async throws {
         let modelDirectory = try await downloadModel("Xenova/nllb-200-distilled-600M")
