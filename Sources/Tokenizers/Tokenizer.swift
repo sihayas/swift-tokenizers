@@ -559,7 +559,7 @@ public class PreTrainedTokenizer: @unchecked Sendable, Tokenizer {
         _templateCacheLock.unlock()
 
         // Compile template outside of lock to avoid holding lock during expensive operation
-        let compiled = try Template(templateString)
+        let compiled = try Template(templateString, with: .init(lstripBlocks: true, trimBlocks: true))
 
         // Insert into cache (double-checked in case another thread compiled the same template)
         _templateCacheLock.lock()
