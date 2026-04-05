@@ -3,10 +3,19 @@
 // Based on GPT2TokenizerTests by Julien Chaumond.
 
 import Foundation
-import HuggingFace
+import HFAPI
 import Testing
 
 @testable import Tokenizers
+@testable import TokenizersCore
+
+#if TOKENIZERS_SWIFT_BACKEND
+@testable import TokenizersSwiftBackend
+#endif
+
+#if Rust
+@testable import TokenizersRustBackend
+#endif
 
 private let downloadDestination: URL = {
     let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
@@ -57,14 +66,22 @@ private func loadEdgeCases(for hubModelName: String) throws -> [EdgeCase]? {
 
 private let tokenizerFiles = ["tokenizer.json", "tokenizer_config.json", "config.json"]
 
+private func backendValue<T>(swift: T, rust: T) -> T {
+    #if Rust
+    rust
+    #else
+    swift
+    #endif
+}
+
 private func downloadModel(_ modelName: String) async throws -> URL {
     guard let repoId = Repo.ID(rawValue: modelName) else {
         throw TestError.unsupportedTokenizer
     }
     return try await hubClient.downloadSnapshot(
         of: repoId,
-        to: downloadDestination.appending(path: modelName),
-        matching: tokenizerFiles
+        matching: tokenizerFiles,
+        to: downloadDestination.appending(path: modelName)
     )
 }
 
@@ -162,7 +179,11 @@ struct TokenizerTests {
         #expect(tokenizer.convertIdToToken(235345) == "#")
 
         // Verifies all expected entries are parsed
+        #if Rust
+        #expect((tokenizer.model as? RustProxyModel)?.vocabCount == 256_000)
+        #else
         #expect((tokenizer.model as? BPETokenizer)?.vocabCount == 256_000)
+        #endif
 
         // Test added tokens
         let inputIds = tokenizer("This\n\nis\na\ntest.")
@@ -395,6 +416,7 @@ struct TokenizerTests {
         #expect(tokenizer.encode(text: "She took a train to the West") == [6284, 5244, 1261, 10018, 1317, 1278, 5046])
     }
 
+    #if TOKENIZERS_SWIFT_BACKEND
     @Test
     func concurrentTokenizerRegistration() async throws {
         // Test that concurrent registration doesn't cause crashes or data races.
@@ -438,4 +460,5 @@ struct TokenizerTests {
             }
         }
     }
+    #endif
 }
