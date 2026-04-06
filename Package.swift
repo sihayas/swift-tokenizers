@@ -36,13 +36,13 @@ let tokenizerDirectorySources =
     + tokenizerRustBackendSources
 
 let benchmarksEnabled = Context.environment["TOKENIZERS_ENABLE_BENCHMARKS"] == "1"
+let localRustArtifactPath = Context.environment["TOKENIZERS_RUST_LOCAL_XCFRAMEWORK_PATH"]
 
 func excludedTokenizerSources(keeping sources: [String]) -> [String] {
     tokenizerDirectorySources.filter { !sources.contains($0) }
 }
 
 var packageDependencies: [Package.Dependency] = [
-    .package(path: "TokenizersRustBinary"),
     .package(url: "https://github.com/huggingface/swift-jinja.git", from: "2.0.0"),
     .package(url: "https://github.com/ibireme/yyjson.git", exact: "0.12.0"),
     .package(url: "https://github.com/DePasqualeOrg/swift-hf-api.git", from: "0.2.0"),
@@ -58,7 +58,21 @@ if benchmarksEnabled {
     )
 }
 
+let tokenizersRustTarget: Target =
+    if let localRustArtifactPath {
+        // Used by the Rust release workflow to validate the freshly built XCFramework
+        // before publishing it as a remote binary artifact.
+        .binaryTarget(name: "TokenizersRust", path: localRustArtifactPath)
+    } else {
+        .binaryTarget(
+            name: "TokenizersRust",
+            url: "https://github.com/DePasqualeOrg/swift-tokenizers/releases/download/tokenizers-rust-0.3.0/TokenizersRust-0.3.0.xcframework.zip",
+            checksum: "a48abdf5328ad8d174579b80afce530a0a159f53ce9e659e13f6b3d506e4a433"
+        )
+    }
+
 var packageTargets: [Target] = [
+    tokenizersRustTarget,
     .target(
         name: "TokenizersCore",
         dependencies: [],
@@ -84,7 +98,7 @@ var packageTargets: [Target] = [
         name: "TokenizersRustBackend",
         dependencies: [
             "TokenizersCore",
-            .product(name: "TokenizersRust", package: "TokenizersRustBinary", condition: .when(traits: ["Rust"])),
+            .target(name: "TokenizersRust", condition: .when(traits: ["Rust"])),
         ],
         path: "Sources/Tokenizers",
         exclude: excludedTokenizerSources(keeping: tokenizerRustBackendSources),

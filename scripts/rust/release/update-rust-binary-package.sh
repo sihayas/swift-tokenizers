@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 VERSION="${1:?usage: scripts/rust/release/update-rust-binary-package.sh <version>}"
-PACKAGE_FILE="${REPO_ROOT}/TokenizersRustBinary/Package.swift"
+PACKAGE_FILE="${REPO_ROOT}/Package.swift"
 TAG="tokenizers-rust-${VERSION}"
 ASSET_NAME="TokenizersRust-${VERSION}.xcframework.zip"
 
@@ -70,7 +70,7 @@ content, checksum_count = re.subn(
 )
 
 if url_count != 1 or checksum_count != 1:
-    raise SystemExit("failed to update TokenizersRustBinary/Package.swift")
+    raise SystemExit("failed to update Package.swift")
 
 package_file.write_text(content)
 PY

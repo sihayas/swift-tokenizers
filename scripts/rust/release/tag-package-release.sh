@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 VERSION="${1:?usage: scripts/rust/release/tag-package-release.sh <version> [<ref>]}"
 REF="${2:-HEAD}"
-PACKAGE_FILE="TokenizersRustBinary/Package.swift"
+PACKAGE_FILE="Package.swift"
 EXPECTED_ARTIFACT_PATH="releases/download/tokenizers-rust-${VERSION}/TokenizersRust-${VERSION}.xcframework.zip"
 
 if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then

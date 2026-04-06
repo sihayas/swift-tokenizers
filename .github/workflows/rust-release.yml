@@ -29,7 +29,7 @@ jobs:
 
             - name: Validate local Rust artifact
               env:
-                  TOKENIZERS_RUST_LOCAL_XCFRAMEWORK_PATH: ../Binaries/TokenizersRust.xcframework
+                  TOKENIZERS_RUST_LOCAL_XCFRAMEWORK_PATH: Binaries/TokenizersRust.xcframework
               run: |
                   set -euo pipefail
 
