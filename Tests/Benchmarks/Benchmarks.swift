@@ -3,8 +3,7 @@ import Foundation
 import HFAPI
 import Testing
 
-private let benchmarksEnabled = ProcessInfo.processInfo.environment["RUN_BENCHMARKS"] == "1"
-private let modelBenchmarksEnabled = ProcessInfo.processInfo.environment["RUN_MODEL_BENCHMARKS"] == "1"
+private let benchmarksEnabled = ProcessInfo.processInfo.environment["TOKENIZERS_ENABLE_BENCHMARKS"] == "1"
 private let benchmarkDownloader = HubClientDownloader(.default)
 
 @Suite(.serialized, .enabled(if: benchmarksEnabled))
@@ -64,7 +63,7 @@ struct Benchmarks {
         stats.printSummary(label: "Chat template render (\(backend.label))")
     }
 
-    @Test(.enabled(if: modelBenchmarksEnabled)) func loadLLM() async throws {
+    @Test func loadLLM() async throws {
         let backend = activeBenchmarkTokenizerBackend()
         let stats = try await benchmarkLLMLoading(
             from: benchmarkDownloader,
@@ -73,7 +72,7 @@ struct Benchmarks {
         stats.printSummary(label: "LLM load (\(backend.label))")
     }
 
-    @Test(.enabled(if: modelBenchmarksEnabled)) func loadVLM() async throws {
+    @Test func loadVLM() async throws {
         let backend = activeBenchmarkTokenizerBackend()
         let stats = try await benchmarkVLMLoading(
             from: benchmarkDownloader,
@@ -82,7 +81,7 @@ struct Benchmarks {
         stats.printSummary(label: "VLM load (\(backend.label))")
     }
 
-    @Test(.enabled(if: modelBenchmarksEnabled)) func loadEmbedding() async throws {
+    @Test func loadEmbedding() async throws {
         let backend = activeBenchmarkTokenizerBackend()
         let stats = try await benchmarkEmbeddingLoading(
             from: benchmarkDownloader,

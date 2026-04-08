@@ -143,24 +143,30 @@ let tokenizer = try await AutoTokenizer.from(directory: directory)
 
 ## Benchmarks
 
-The benchmarks use tests from MLX Swift LM and can be run from this package in Xcode.
+| | Swift Transformers | Swift backend | | Rust backend | |
+| --- | ---: | ---: | --- | ---: | --- |
+| Tokenizer load | 399.3 ms | 176.1 ms | 2.3x faster | 164.5 ms | 2.4x faster |
+| Tokenization | 48.4 ms | 23.0 ms | 2.1x faster | 3.5 ms | 13.8x faster |
+| Decoding | 30.9 ms | 13.3 ms | 2.3x faster | 3.7 ms | 8.4x faster |
+| LLM load | 409.7 ms | 189.5 ms | 2.2x faster | 184.5 ms | 2.2x faster |
+| VLM load | 441.6 ms | 235.2 ms | 1.9x faster | 223.1 ms | 2.0x faster |
+| Embedding load | 412.0 ms | 191.5 ms | 2.2x faster | 191.6 ms | 2.2x faster |
 
-Set `TOKENIZERS_ENABLE_BENCHMARKS=1` to include the benchmark target in the package graph, then set `RUN_BENCHMARKS=1` in the test scheme environment to run the benchmark suite.
+These results were observed on an M3 MacBook Pro using Swift Tokenizers `7e5ea0d`, Swift Transformers [`1.3.0`](https://github.com/huggingface/swift-transformers/releases/tag/1.3.0), and MLX Swift LM `8c9dd63`.
 
-From the command line, use release builds for accurate numbers:
+### Running benchmarks
+
+The benchmarks use tests from MLX Swift LM and can be run from this package in Xcode. Set `TOKENIZERS_ENABLE_BENCHMARKS=1` to include the benchmark target in the package graph and enable the benchmark suite.
+
+From the command line, use release builds for accurate numbers. The model loading benchmarks (LLM, VLM, embedding) require Metal, which is only available through `xcodebuild`. However, `xcodebuild` does not support package traits, so `swift test` is needed to run benchmarks with the Rust backend.
 
 ```bash
-TOKENIZERS_ENABLE_BENCHMARKS=1 RUN_BENCHMARKS=1 swift test -c release --filter Benchmarks
-TOKENIZERS_ENABLE_BENCHMARKS=1 RUN_BENCHMARKS=1 swift test -c release --traits Rust --filter Benchmarks
+# Full suite (requires Metal)
+TOKENIZERS_ENABLE_BENCHMARKS=1 TEST_RUNNER_TOKENIZERS_ENABLE_BENCHMARKS=1 xcodebuild test -scheme Benchmarks -configuration Release -destination 'platform=macOS,arch=arm64'
+
+# Tokenizer benchmarks only
+TOKENIZERS_ENABLE_BENCHMARKS=1 swift test -c release --filter Benchmarks
+
+# Tokenizer benchmarks with Rust backend
+TOKENIZERS_ENABLE_BENCHMARKS=1 swift test -c release --traits Rust --filter Benchmarks
 ```
-
-These results were observed on an M3 MacBook Pro.
-
-| Benchmark | Swift Tokenizers median | Swift Transformers median | Swift Tokenizers Performance |
-| --- | ---: | ---: | --- |
-| Tokenizer load | 289.6 ms | 1004.6 ms | 3.47x faster |
-| Tokenization | 53.0 ms | 105.8 ms | 2.00x faster |
-| Decoding | 28.9 ms | 48.4 ms | 1.67x faster |
-| LLM load | 318.8 ms | 1033.5 ms | 3.24x faster |
-| VLM load | 367.9 ms | 1081.5 ms | 2.94x faster |
-| Embedding load | 310.7 ms | 1023.5 ms | 3.29x faster |
