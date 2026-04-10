@@ -18,11 +18,9 @@ Swift Tokenizers uses Swift package traits and requires Swift 6.1 or newer.
 
 ### Default Swift backend
 
-If you add the package without specifying traits, the default `Swift` trait is enabled:
-
 ```swift
 dependencies: [
-    .package(url: "https://github.com/DePasqualeOrg/swift-tokenizers.git", from: "0.3.1")
+    .package(url: "https://github.com/DePasqualeOrg/swift-tokenizers.git", from: "0.3.2", traits: ["Swift"])
 ]
 ```
 
@@ -34,7 +32,7 @@ To build with the Rust backend instead of the default Swift backend, enable only
 dependencies: [
     .package(
         url: "https://github.com/DePasqualeOrg/swift-tokenizers.git",
-        from: "0.3.1",
+        from: "0.3.2",
         traits: ["Rust"]
     )
 ]
